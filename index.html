@@ -18,26 +18,27 @@
       .font-serif {
         font-family: 'Merriweather', serif;
       }
-      /* Custom scrollbar for editor */
-      textarea::-webkit-scrollbar {
-        width: 8px;
+      
+      /* CodeMirror Overrides */
+      .cm-editor {
+        height: 100%;
+        font-size: 14px;
+        outline: none !important;
       }
-      textarea::-webkit-scrollbar-track {
-        background: transparent;
+      .cm-scroller {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        line-height: 1.6;
       }
-      textarea::-webkit-scrollbar-thumb {
-        background: #ccc;
-        border-radius: 4px;
+      .dark .cm-editor {
+        background-color: #111827; /* gray-900 */
+        color: #e5e7eb; /* gray-200 */
       }
-      textarea::-webkit-scrollbar-thumb:hover {
-        background: #999;
+      .dark .cm-cursor {
+        border-left-color: #e5e7eb;
       }
-      /* Dark mode scrollbar override */
-      .dark textarea::-webkit-scrollbar-thumb {
-        background: #555;
-      }
-      .dark textarea::-webkit-scrollbar-thumb:hover {
-        background: #777;
+      .cm-content {
+        padding: 20px !important;
+        max-width: 100%;
       }
       
       @media print {
@@ -76,7 +77,12 @@
     "react": "https://aistudiocdn.com/react@^19.2.0",
     "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
     "react/": "https://aistudiocdn.com/react@^19.2.0/",
-    "jszip": "https://aistudiocdn.com/jszip@^3.10.1"
+    "jszip": "https://aistudiocdn.com/jszip@^3.10.1",
+    "@uiw/react-codemirror": "https://esm.sh/@uiw/react-codemirror@4.21.25?external=react,react-dom",
+    "@codemirror/lang-markdown": "https://esm.sh/@codemirror/lang-markdown@6.2.4",
+    "@codemirror/view": "https://esm.sh/@codemirror/view@6.24.0",
+    "@codemirror/state": "https://esm.sh/@codemirror/state@6.4.0",
+    "@replit/codemirror-vim": "https://esm.sh/@replit/codemirror-vim@6.1.0"
   }
 }
 </script>

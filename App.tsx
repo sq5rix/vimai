@@ -1,5 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
+import CodeMirror, { ReactCodeMirrorRef } from '@uiw/react-codemirror';
+import { markdown } from '@codemirror/lang-markdown';
+import { vim } from '@replit/codemirror-vim';
+import { EditorView } from '@codemirror/view';
 import { Toolbar } from './components/Toolbar';
 import { ImageGenModal, TextEditModal } from './components/Modals';
 import { ViewMode, Theme } from './types';
@@ -30,6 +34,7 @@ const App: React.FC = () => {
   const [content, setContent] = useState<string>(INITIAL_CONTENT);
   const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.SPLIT);
   const [theme, setTheme] = useState<Theme>('system');
+  const [vimMode, setVimMode] = useState<boolean>(true);
   
   // Modal States
   const [isImgModalOpen, setIsImgModalOpen] = useState(false);
@@ -40,7 +45,7 @@ const App: React.FC = () => {
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
   // Editor Refs
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const editorRef = useRef<ReactCodeMirrorRef>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imgToTextRef = useRef<HTMLInputElement>(null);
 
@@ -75,32 +80,26 @@ const App: React.FC = () => {
     return () => mediaQuery.removeEventListener('change', listener);
   }, [theme]);
 
-  // --- Helpers for Text Manipulation ---
+  // --- Helpers for Text Manipulation via CodeMirror ---
+
+  const getEditorView = () => editorRef.current?.view;
 
   const insertAtCursor = (textToInsert: string) => {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
+    const view = getEditorView();
+    if (!view) return;
 
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const text = content;
+    // Insert text at cursor position or replace selection
+    view.dispatch(view.state.replaceSelection(textToInsert));
     
-    const newText = text.substring(0, start) + textToInsert + text.substring(end);
-    
-    // Use functional update to ensure we don't lose updates
-    setContent(newText);
-    
-    // Restore cursor position after render
-    setTimeout(() => {
-      textarea.focus();
-      textarea.setSelectionRange(start + textToInsert.length, start + textToInsert.length);
-    }, 0);
+    // Focus editor
+    view.focus();
   };
 
   const getSelection = () => {
-    const textarea = textareaRef.current;
-    if (!textarea) return '';
-    return content.substring(textarea.selectionStart, textarea.selectionEnd);
+    const view = getEditorView();
+    if (!view) return '';
+    const { from, to } = view.state.selection.main;
+    return view.state.sliceDoc(from, to);
   };
 
   const replaceSelection = (newText: string) => {
@@ -124,8 +123,6 @@ const App: React.FC = () => {
       const selection = getSelection();
       replaceSelection(`${wrap}${selection}${wrap}`);
     } else if (block) {
-      // For blocks, we typically want to insert at start of line. 
-      // Simplified here: just insert at cursor or replace selection.
       insertAtCursor(block);
     }
   };
@@ -165,11 +162,11 @@ const App: React.FC = () => {
   };
 
   const handleAIContinue = async () => {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
+    const view = getEditorView();
+    if (!view) return;
     
     // Grab text up to cursor
-    const textUpToCursor = content.substring(0, textarea.selectionEnd);
+    const textUpToCursor = view.state.sliceDoc(0, view.state.selection.main.head);
     
     setIsProcessing(true);
     setStatusMessage("Continuing your story...");
@@ -349,6 +346,8 @@ const App: React.FC = () => {
         setViewMode={setViewMode}
         theme={theme}
         setTheme={setTheme}
+        vimMode={vimMode}
+        setVimMode={setVimMode}
       />
 
       <div className="flex-1 overflow-hidden relative flex">
@@ -356,15 +355,26 @@ const App: React.FC = () => {
         {/* Editor Pane */}
         {(viewMode === ViewMode.EDIT || viewMode === ViewMode.SPLIT) && (
           <div className={`h-full ${viewMode === ViewMode.SPLIT ? 'w-1/2 border-r border-gray-200 dark:border-gray-800' : 'w-full'} flex flex-col no-print transition-all duration-200`}>
-             <div className="bg-gray-100 dark:bg-gray-900 text-xs text-gray-500 dark:text-gray-400 px-4 py-1 font-mono border-b border-gray-200 dark:border-gray-800 uppercase tracking-wider transition-colors">Markdown Source</div>
-            <textarea
-              ref={textareaRef}
-              className="flex-1 w-full p-6 resize-none outline-none font-mono text-sm leading-relaxed text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-900 transition-colors"
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              placeholder="# Start writing your masterpiece..."
-              spellCheck={false}
-            />
+             <div className="bg-gray-100 dark:bg-gray-900 text-xs text-gray-500 dark:text-gray-400 px-4 py-1 font-mono border-b border-gray-200 dark:border-gray-800 uppercase tracking-wider transition-colors flex justify-between">
+               <span>Markdown Source</span>
+               {vimMode && <span className="text-green-600 dark:text-green-400 font-bold">VIM MODE</span>}
+             </div>
+            
+             <div className="flex-1 overflow-hidden bg-white dark:bg-gray-900">
+               <CodeMirror
+                 ref={editorRef}
+                 value={content}
+                 height="100%"
+                 theme={theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light'}
+                 extensions={[
+                   markdown(),
+                   EditorView.lineWrapping,
+                   ...(vimMode ? [vim()] : [])
+                 ]}
+                 onChange={(value) => setContent(value)}
+                 className="h-full text-sm"
+               />
+             </div>
           </div>
         )}
 

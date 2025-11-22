@@ -14,7 +14,12 @@
     "lucide-react": "^0.554.0",
     "react": "^19.2.0",
     "@google/genai": "^1.30.0",
-    "jszip": "^3.10.1"
+    "jszip": "^3.10.1",
+    "@uiw/react-codemirror": "4.21.25",
+    "@codemirror/lang-markdown": "6.2.4",
+    "@codemirror/view": "6.24.0",
+    "@codemirror/state": "6.4.0",
+    "@replit/codemirror-vim": "6.1.0"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

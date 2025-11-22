@@ -4,7 +4,7 @@ import {
   Image as ImageIcon, Sparkles, Download, 
   Type, Eye, Columns, Printer, Wand2,
   Sun, Moon, Monitor, FolderOpen, ClipboardPaste, ScanText,
-  BookTemplate
+  BookTemplate, TerminalSquare
 } from 'lucide-react';
 import { ViewMode, Theme } from '../types';
 
@@ -21,6 +21,8 @@ interface ToolbarProps {
   setViewMode: (mode: ViewMode) => void;
   theme: Theme;
   setTheme: (theme: Theme) => void;
+  vimMode: boolean;
+  setVimMode: (enabled: boolean) => void;
 }
 
 export const Toolbar: React.FC<ToolbarProps> = ({
@@ -35,7 +37,9 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   viewMode,
   setViewMode,
   theme,
-  setTheme
+  setTheme,
+  vimMode,
+  setVimMode
 }) => {
   const buttonBaseClass = "p-2 rounded-md transition-colors";
   const iconButtonClass = `${buttonBaseClass} text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700`;
@@ -133,6 +137,21 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
       <div className="flex items-center space-x-3">
         
+        {/* Vim Mode Toggle */}
+        <div className="flex items-center space-x-2 bg-gray-100 dark:bg-gray-800 rounded-lg px-3 py-1.5">
+          <TerminalSquare size={16} className={vimMode ? "text-green-600 dark:text-green-400" : "text-gray-400"} />
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input 
+              type="checkbox" 
+              checked={vimMode} 
+              onChange={(e) => setVimMode(e.target.checked)} 
+              className="sr-only peer" 
+            />
+            <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-green-600"></div>
+            <span className="ml-2 text-xs font-medium text-gray-600 dark:text-gray-300 hidden sm:inline">Vim</span>
+          </label>
+        </div>
+
         {/* Theme Toggle */}
         <div className="hidden md:flex bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
            <button 
