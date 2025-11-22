@@ -1,0 +1,5 @@
+{
+  "name": "Gemini Markdown Ebook Editor",
+  "description": "A powerful markdown editor specialized for ebook creation, featuring AI-powered text rewriting and image generation using Google Gemini.",
+  "requestFramePermissions": []
+}
