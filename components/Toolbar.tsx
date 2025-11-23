@@ -241,7 +241,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
         </div>
 
         {/* View Mode Toggles */}
-        <div className="hidden lg:flex bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
+        <div className="flex bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
           <button 
             onClick={() => setViewMode(ViewMode.EDIT)}
             className={`p-2 rounded-md transition-all ${viewMode === ViewMode.EDIT ? 'bg-white dark:bg-gray-600 shadow-sm text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}
