@@ -276,15 +276,14 @@ const App: React.FC = () => {
 
   const handlePaste = async () => {
     try {
-      if (!navigator.clipboard) {
-        alert("Clipboard API not supported");
-        return;
+      if (!navigator.clipboard || !navigator.clipboard.readText) {
+        throw new Error("Clipboard API not available");
       }
       const text = await navigator.clipboard.readText();
       insertAtCursor(text);
     } catch (err) {
       console.error('Failed to read clipboard contents: ', err);
-      alert("Failed to paste. Please allow clipboard permissions.");
+      alert("Clipboard access blocked. Please use keyboard shortcuts (Ctrl+V or Cmd+V) to paste directly into the editor.");
     }
   };
 
