@@ -4,9 +4,9 @@ import {
   Image as ImageIcon, Sparkles, Download, 
   Type, Eye, Columns, Printer, Wand2,
   Sun, Moon, Monitor, FolderOpen, ClipboardPaste, ScanText,
-  BookTemplate, TerminalSquare
+  BookTemplate, TerminalSquare, AlignJustify, TextQuote
 } from 'lucide-react';
-import { ViewMode, Theme } from '../types';
+import { ViewMode, Theme, PreviewSettings } from '../types';
 
 interface ToolbarProps {
   onFormat: (format: string) => void;
@@ -23,6 +23,8 @@ interface ToolbarProps {
   setTheme: (theme: Theme) => void;
   vimMode: boolean;
   setVimMode: (enabled: boolean) => void;
+  previewSettings: PreviewSettings;
+  setPreviewSettings: (settings: PreviewSettings) => void;
 }
 
 export const Toolbar: React.FC<ToolbarProps> = ({
@@ -39,14 +41,16 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   theme,
   setTheme,
   vimMode,
-  setVimMode
+  setVimMode,
+  previewSettings,
+  setPreviewSettings
 }) => {
   const buttonBaseClass = "p-2 rounded-md transition-colors";
   const iconButtonClass = `${buttonBaseClass} text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700`;
   
   return (
     <div className="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-2 flex items-center justify-between flex-wrap gap-2 sticky top-0 z-10 shadow-sm no-print transition-colors duration-200">
-      <div className="flex items-center space-x-1">
+      <div className="flex items-center space-x-1 flex-wrap gap-y-1">
         
         {/* File Operations */}
         <div className="flex bg-gray-100 dark:bg-gray-800 rounded-lg p-1 mr-2">
@@ -97,7 +101,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           </button>
         </div>
 
-        <div className="flex items-center space-x-2 border-l pl-4 border-gray-300 dark:border-gray-700">
+        <div className="flex items-center space-x-2 border-l pl-4 border-gray-300 dark:border-gray-700 mr-4">
            <button 
             onClick={onGenerateImage}
             className="flex items-center space-x-2 px-3 py-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-md hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors font-medium"
@@ -112,7 +116,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             title="Extract text from an image"
           >
             <ScanText size={18} />
-            <span className="hidden sm:inline">Scan Text</span>
+            <span className="hidden lg:inline">Scan Text</span>
           </button>
           
           <button 
@@ -121,7 +125,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             title="Select text to rewrite"
           >
             <Sparkles size={18} />
-            <span className="hidden sm:inline">AI Edit</span>
+            <span className="hidden lg:inline">AI Edit</span>
           </button>
 
           <button 
@@ -130,12 +134,60 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             title="Continue writing from cursor"
           >
             <Wand2 size={18} />
-            <span className="hidden sm:inline">Continue</span>
+            <span className="hidden lg:inline">Continue</span>
           </button>
         </div>
+
+        {/* Typography Controls */}
+        <div className="flex items-center space-x-2 bg-gray-100 dark:bg-gray-800 rounded-lg p-1 px-2 border border-gray-200 dark:border-gray-700">
+          <div className="flex items-center space-x-2" title="Preview Typography">
+            <Type size={16} className="text-gray-500 dark:text-gray-400" />
+            
+            <select 
+              value={previewSettings.fontFamily}
+              onChange={(e) => setPreviewSettings({...previewSettings, fontFamily: e.target.value})}
+              className="bg-transparent text-sm border-none focus:ring-0 w-20 cursor-pointer text-gray-700 dark:text-gray-200 outline-none font-medium"
+            >
+              <option value="Merriweather">Serif</option>
+              <option value="Inter">Sans</option>
+              <option value="ui-monospace">Mono</option>
+            </select>
+
+            <div className="w-px h-4 bg-gray-300 dark:bg-gray-600 mx-2"></div>
+
+            <select
+              value={previewSettings.fontSize}
+              onChange={(e) => setPreviewSettings({...previewSettings, fontSize: Number(e.target.value)})}
+              className="bg-transparent text-sm border-none focus:ring-0 cursor-pointer text-gray-700 dark:text-gray-200 outline-none"
+              title="Font Size"
+            >
+              {[12, 14, 16, 18, 20, 24, 28, 32].map(s => (
+                  <option key={s} value={s}>{s}px</option>
+              ))}
+            </select>
+
+            <div className="w-px h-4 bg-gray-300 dark:bg-gray-600 mx-2"></div>
+
+            <AlignJustify size={14} className="text-gray-400" />
+            <select
+              value={previewSettings.lineHeight}
+              onChange={(e) => setPreviewSettings({...previewSettings, lineHeight: Number(e.target.value)})}
+              className="bg-transparent text-sm border-none focus:ring-0 cursor-pointer text-gray-700 dark:text-gray-200 outline-none"
+              title="Line Height (Interline)"
+            >
+              <option value={1.2}>1.2</option>
+              <option value={1.4}>1.4</option>
+              <option value={1.6}>1.6</option>
+              <option value={1.8}>1.8</option>
+              <option value={2.0}>2.0</option>
+              <option value={2.5}>2.5</option>
+            </select>
+          </div>
+        </div>
+
       </div>
 
-      <div className="flex items-center space-x-3">
+      <div className="flex items-center space-x-3 mt-2 md:mt-0">
         
         {/* Vim Mode Toggle */}
         <div className="flex items-center space-x-2 bg-gray-100 dark:bg-gray-800 rounded-lg px-3 py-1.5">
@@ -148,12 +200,12 @@ export const Toolbar: React.FC<ToolbarProps> = ({
               className="sr-only peer" 
             />
             <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-green-600"></div>
-            <span className="ml-2 text-xs font-medium text-gray-600 dark:text-gray-300 hidden sm:inline">Vim</span>
+            <span className="ml-2 text-xs font-medium text-gray-600 dark:text-gray-300 hidden xl:inline">Vim</span>
           </label>
         </div>
 
         {/* Theme Toggle */}
-        <div className="hidden md:flex bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
+        <div className="hidden lg:flex bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
            <button 
             onClick={() => setTheme('light')}
             className={`p-2 rounded-md transition-all ${theme === 'light' ? 'bg-white dark:bg-gray-600 shadow-sm text-amber-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}
@@ -178,7 +230,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
         </div>
 
         {/* View Mode Toggles */}
-        <div className="hidden md:flex bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
+        <div className="hidden lg:flex bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
           <button 
             onClick={() => setViewMode(ViewMode.EDIT)}
             className={`p-2 rounded-md transition-all ${viewMode === ViewMode.EDIT ? 'bg-white dark:bg-gray-600 shadow-sm text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}

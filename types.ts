@@ -20,3 +20,9 @@ export interface TextEditConfig {
   selection: string;
   instruction: string;
 }
+
+export interface PreviewSettings {
+  fontFamily: string;
+  fontSize: number;
+  lineHeight: number;
+}

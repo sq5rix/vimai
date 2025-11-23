@@ -6,7 +6,7 @@ import { vim } from '@replit/codemirror-vim';
 import { EditorView } from '@codemirror/view';
 import { Toolbar } from './components/Toolbar';
 import { ImageGenModal, TextEditModal } from './components/Modals';
-import { ViewMode, Theme } from './types';
+import { ViewMode, Theme, PreviewSettings } from './types';
 import { generateImage, editText, continueWriting, imageToText } from './services/gemini';
 import { generateTypstZip } from './services/typst';
 import { Loader2 } from 'lucide-react';
@@ -35,6 +35,13 @@ const App: React.FC = () => {
   const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.SPLIT);
   const [theme, setTheme] = useState<Theme>('system');
   const [vimMode, setVimMode] = useState<boolean>(true);
+  
+  // Typography Settings
+  const [previewSettings, setPreviewSettings] = useState<PreviewSettings>({
+    fontFamily: 'Merriweather',
+    fontSize: 18,
+    lineHeight: 1.6
+  });
   
   // Modal States
   const [isImgModalOpen, setIsImgModalOpen] = useState(false);
@@ -194,14 +201,27 @@ const App: React.FC = () => {
     if (type === 'md') {
       blob = new Blob([content], { type: 'text/markdown' });
     } else if (type === 'html') {
-      // Basic wrapper for valid HTML export
+      // Basic wrapper for valid HTML export with current styles
       const htmlContent = document.getElementById('preview-content')?.innerHTML || "";
       const data = `
         <!DOCTYPE html>
         <html>
         <head>
           <title>Ebook Export</title>
-          <style>body { font-family: serif; max-width: 800px; margin: 0 auto; padding: 20px; line-height: 1.6; } img { max-width: 100%; }</style>
+          <style>
+            body { 
+              font-family: ${previewSettings.fontFamily}, serif; 
+              font-size: ${previewSettings.fontSize}px;
+              line-height: ${previewSettings.lineHeight};
+              max-width: 800px; 
+              margin: 0 auto; 
+              padding: 20px; 
+              color: #333;
+            } 
+            img { max-width: 100%; border-radius: 8px; }
+            blockquote { border-left: 4px solid #ddd; padding-left: 1em; color: #666; font-style: italic; }
+            h1, h2, h3 { font-family: sans-serif; }
+          </style>
         </head>
         <body>${htmlContent}</body>
         </html>
@@ -348,6 +368,8 @@ const App: React.FC = () => {
         setTheme={setTheme}
         vimMode={vimMode}
         setVimMode={setVimMode}
+        previewSettings={previewSettings}
+        setPreviewSettings={setPreviewSettings}
       />
 
       <div className="flex-1 overflow-hidden relative flex">
@@ -388,7 +410,15 @@ const App: React.FC = () => {
               <div className="bg-gray-100 dark:bg-gray-900 text-xs text-gray-500 dark:text-gray-400 px-4 py-1 font-mono border-b border-gray-200 dark:border-gray-800 uppercase tracking-wider no-print transition-colors">Preview</div>
             )}
             <div className="max-w-3xl mx-auto p-8 lg:p-12 min-h-full">
-              <article id="preview-content" className="prose prose-slate lg:prose-lg dark:prose-invert max-w-none font-serif prose-headings:font-sans prose-headings:font-bold prose-img:rounded-xl prose-img:shadow-md transition-colors">
+              <article 
+                id="preview-content" 
+                className="prose prose-slate lg:prose-lg dark:prose-invert max-w-none prose-headings:font-sans prose-headings:font-bold prose-img:rounded-xl prose-img:shadow-md transition-colors transition-all duration-200"
+                style={{
+                  fontFamily: previewSettings.fontFamily,
+                  fontSize: `${previewSettings.fontSize}px`,
+                  lineHeight: previewSettings.lineHeight
+                }}
+              >
                 <ReactMarkdown>{content}</ReactMarkdown>
               </article>
             </div>
