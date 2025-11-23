@@ -4,7 +4,7 @@ import {
   Image as ImageIcon, Sparkles, Download, 
   Type, Eye, Columns, Printer, Wand2,
   Sun, Moon, Monitor, FolderOpen, ClipboardPaste, ScanText,
-  BookTemplate, TerminalSquare, AlignJustify, TextQuote
+  BookTemplate, TerminalSquare, AlignJustify, Zap
 } from 'lucide-react';
 import { ViewMode, Theme, PreviewSettings } from '../types';
 
@@ -12,6 +12,7 @@ interface ToolbarProps {
   onFormat: (format: string) => void;
   onGenerateImage: () => void;
   onAIEdit: () => void;
+  onAIImprove: () => void;
   onAIContinue: () => void;
   onExport: (type: 'md' | 'html' | 'pdf' | 'typst') => void;
   onOpenFile: () => void;
@@ -31,6 +32,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   onFormat,
   onGenerateImage,
   onAIEdit,
+  onAIImprove,
   onAIContinue,
   onExport,
   onOpenFile,
@@ -120,12 +122,21 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           </button>
           
           <button 
+            onClick={onAIImprove}
+            className="flex items-center space-x-2 px-3 py-2 bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-md hover:bg-amber-100 dark:hover:bg-amber-900/50 transition-colors font-medium"
+            title="Improve text (selected or all)"
+          >
+            <Zap size={18} />
+            <span className="hidden lg:inline">Improve</span>
+          </button>
+
+          <button 
             onClick={onAIEdit}
             className="flex items-center space-x-2 px-3 py-2 bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-md hover:bg-purple-100 dark:hover:bg-purple-900/50 transition-colors font-medium"
-            title="Select text to rewrite"
+            title="Select text to rewrite with specific instructions"
           >
             <Sparkles size={18} />
-            <span className="hidden lg:inline">AI Edit</span>
+            <span className="hidden lg:inline">Edit</span>
           </button>
 
           <button 

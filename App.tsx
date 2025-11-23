@@ -7,7 +7,7 @@ import { EditorView } from '@codemirror/view';
 import { Toolbar } from './components/Toolbar';
 import { ImageGenModal, TextEditModal } from './components/Modals';
 import { ViewMode, Theme, PreviewSettings } from './types';
-import { generateImage, editText, continueWriting, imageToText } from './services/gemini';
+import { generateImage, editText, continueWriting, imageToText, improveText } from './services/gemini';
 import { generateTypstZip } from './services/typst';
 import { Loader2 } from 'lucide-react';
 
@@ -162,6 +162,43 @@ const App: React.FC = () => {
       setIsTextModalOpen(false);
     } catch (e) {
       alert("Failed to rewrite text.");
+    } finally {
+      setIsProcessing(false);
+      setStatusMessage(null);
+    }
+  };
+
+  const handleAIImprove = async () => {
+    const view = getEditorView();
+    if (!view) return;
+
+    const selection = getSelection();
+    const isSelection = !!selection && selection.trim().length > 0;
+    const textToImprove = isSelection ? selection : content;
+
+    if (!textToImprove.trim()) {
+        alert("Document is empty.");
+        return;
+    }
+
+    setIsProcessing(true);
+    setStatusMessage(isSelection ? "Improving selected text..." : "Improving document (this might take a moment)...");
+    
+    try {
+      const improved = await improveText(textToImprove);
+      
+      if (isSelection) {
+        replaceSelection(improved);
+      } else {
+        // Replace entire document
+        view.dispatch({
+            changes: { from: 0, to: view.state.doc.length, insert: improved }
+        });
+        // State update via onChange will happen automatically
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Failed to improve text.");
     } finally {
       setIsProcessing(false);
       setStatusMessage(null);
@@ -356,6 +393,7 @@ const App: React.FC = () => {
            }
            setIsTextModalOpen(true);
         }}
+        onAIImprove={handleAIImprove}
         onAIContinue={handleAIContinue}
         onExport={handleExport}
         onOpenFile={handleOpenFile}

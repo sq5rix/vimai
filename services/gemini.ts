@@ -83,6 +83,31 @@ export const editText = async (selection: string, instruction: string, fullConte
   return response.text || selection;
 };
 
+export const improveText = async (text: string): Promise<string> => {
+  const ai = getClient();
+  
+  const prompt = `
+    You are an expert professional editor. Improve the following markdown text for grammar, clarity, conciseness, style, and flow.
+    
+    Original Text:
+    """
+    ${text}
+    """
+    
+    IMPORTANT GUIDELINES:
+    1. Retain the original meaning and tone.
+    2. Preserve all markdown formatting (headers, links, images, bold/italic, blockquotes) exactly as is, unless the formatting itself is erroneous.
+    3. Do not be conversational. Return ONLY the improved text.
+  `;
+
+  const response = await ai.models.generateContent({
+    model: 'gemini-2.5-flash',
+    contents: prompt,
+  });
+
+  return response.text || text;
+};
+
 export const continueWriting = async (currentText: string): Promise<string> => {
     const ai = getClient();
     // Take the last 2000 characters to maintain context but avoid token limits if the doc is huge
