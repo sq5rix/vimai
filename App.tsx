@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import CodeMirror, { ReactCodeMirrorRef } from '@uiw/react-codemirror';
 import { markdown } from '@codemirror/lang-markdown';
@@ -35,6 +35,7 @@ const App: React.FC = () => {
   const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.SPLIT);
   const [theme, setTheme] = useState<Theme>('system');
   const [vimMode, setVimMode] = useState<boolean>(true);
+  const [lineWrapping, setLineWrapping] = useState<boolean>(true);
   
   // Typography Settings
   const [previewSettings, setPreviewSettings] = useState<PreviewSettings>({
@@ -365,6 +366,15 @@ const App: React.FC = () => {
     e.target.value = '';
   };
 
+  // Memoize extensions to ensure they are properly reapplied when states change
+  const extensions = useMemo(() => {
+    return [
+      markdown(),
+      ...(lineWrapping ? [EditorView.lineWrapping] : []),
+      ...(vimMode ? [vim()] : [])
+    ];
+  }, [lineWrapping, vimMode]);
+
   return (
     <div className="flex flex-col h-screen bg-gray-50 dark:bg-gray-950 transition-colors duration-200">
       {/* Hidden Inputs */}
@@ -405,6 +415,8 @@ const App: React.FC = () => {
         setTheme={setTheme}
         vimMode={vimMode}
         setVimMode={setVimMode}
+        lineWrapping={lineWrapping}
+        setLineWrapping={setLineWrapping}
         previewSettings={previewSettings}
         setPreviewSettings={setPreviewSettings}
       />
@@ -425,11 +437,7 @@ const App: React.FC = () => {
                  value={content}
                  height="100%"
                  theme={theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light'}
-                 extensions={[
-                   markdown(),
-                   EditorView.lineWrapping,
-                   ...(vimMode ? [vim()] : [])
-                 ]}
+                 extensions={extensions}
                  onChange={(value) => setContent(value)}
                  className="h-full text-sm"
                />

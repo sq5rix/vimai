@@ -4,7 +4,7 @@ import {
   Image as ImageIcon, Sparkles, Download, 
   Type, Eye, Columns, Printer, Wand2,
   Sun, Moon, Monitor, FolderOpen, ClipboardPaste, ScanText,
-  BookTemplate, TerminalSquare, AlignJustify, Zap
+  BookTemplate, TerminalSquare, AlignJustify, Zap, WrapText
 } from 'lucide-react';
 import { ViewMode, Theme, PreviewSettings } from '../types';
 
@@ -24,6 +24,8 @@ interface ToolbarProps {
   setTheme: (theme: Theme) => void;
   vimMode: boolean;
   setVimMode: (enabled: boolean) => void;
+  lineWrapping: boolean;
+  setLineWrapping: (enabled: boolean) => void;
   previewSettings: PreviewSettings;
   setPreviewSettings: (settings: PreviewSettings) => void;
 }
@@ -44,6 +46,8 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   setTheme,
   vimMode,
   setVimMode,
+  lineWrapping,
+  setLineWrapping,
   previewSettings,
   setPreviewSettings
 }) => {
@@ -200,6 +204,15 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
       <div className="flex items-center space-x-3 mt-2 md:mt-0">
         
+        {/* Line Wrap Toggle */}
+        <button
+          onClick={() => setLineWrapping(!lineWrapping)}
+          className={`p-2 rounded-lg transition-colors ${lineWrapping ? 'bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 font-medium' : 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 hover:text-gray-600'}`}
+          title={lineWrapping ? "Turn Line Wrap Off" : "Turn Line Wrap On"}
+        >
+          <WrapText size={18} />
+        </button>
+
         {/* Vim Mode Toggle */}
         <div className="flex items-center space-x-2 bg-gray-100 dark:bg-gray-800 rounded-lg px-3 py-1.5">
           <TerminalSquare size={16} className={vimMode ? "text-green-600 dark:text-green-400" : "text-gray-400"} />
